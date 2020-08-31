@@ -1,0 +1,37 @@
+version: "3"
+services:
+  kdc-admin:
+    build: ./kdc-admin
+    env_file: kerberos.env
+    hostname: kdc-admin
+    volumes:
+      - /dev/urandom:/dev/random
+    networks:
+      krb_auth:
+        ipv4_address: 172.22.0.2
+    restart: unless-stopped
+
+  squid:
+    build: ./squid
+    env_file: kerberos.env
+    hostname: squid
+    ports:
+      - "3128:3128"
+    volumes:
+      - ./squid/squid.conf:/etc/squid/squid.conf
+      - ./squid/keytabs:/tmp/keytabs
+      - ./squid/krb5.conf:/etc/krb5.conf:ro
+    depends_on:
+      - kdc-admin
+    networks:
+      krb_auth:
+        ipv4_address: 172.22.0.3
+    restart: unless-stopped
+    user: proxy
+
+networks:
+  krb_auth:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16

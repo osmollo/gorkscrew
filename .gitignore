@@ -1,0 +1,4 @@
+.vscode/
+gorkscrew
+!gorkscrew.go
+test.go
