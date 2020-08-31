@@ -1,5 +1,8 @@
 # GORKSCREW
 
+[![pipeline status](https://gitlab.com/ohermosa/gorkscrew/badges/master/pipeline.svg)](https://gitlab.com/ohermosa/gorkscrew/-/commits/master)
+
+
 ## Dependencias
 
 Para instalar `GO`

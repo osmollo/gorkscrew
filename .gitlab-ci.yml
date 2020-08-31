@@ -1,0 +1,77 @@
+variables:
+  VERSION: jq -r .version package.json
+  BIN_NAME: ${CI_PROJECT_NAME}
+  ARTIFACTS_DIR: artifacts
+  GO_PROJECT: gitlab.com/${CI_PROJECT_PATH}
+
+stages:
+  - test
+  - build
+  - tag
+  - release
+
+
+test:
+  stage: test
+  image: golang:1.14
+  before_script:
+    - apt update
+    - apt install -y jq curl
+    - echo `eval $VERSION`
+    - mkdir -p ${GOPATH}/src/${GO_PROJECT}
+    - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
+    - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
+    - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
+    - cd ${GOPATH}/src/${GO_PROJECT}
+  script:
+    - go test -v -cover gorkscrew.go
+  except:
+    - master
+
+
+build:
+  stage: build
+  image: golang:1.14
+  before_script:
+    - apt update
+    - apt install -y jq curl
+    - echo `eval $VERSION`
+    - mkdir -p ${GOPATH}/src/${GO_PROJECT}
+    - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
+    - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
+    - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
+    - cd ${GOPATH}/src/${GO_PROJECT}
+  script:
+    - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME} gorkscrew.go
+  artifacts:
+    expire_in: '1 hour'
+    paths:
+      - ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
+  only:
+    - master
+
+
+tag:
+  stage: tag
+  image: alpine:latest
+  script:
+    - apk --update add git jq
+    - git config user.email "${GITLAB_USER_EMAIL}"
+    - git config user.name "${GITLAB_USER_NAME}"
+    - git config push.default simple
+    - git remote set-url origin https://${GITLAB_USER_LOGIN}:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    - git remote -v
+    - git checkout master
+    - git tag -a `eval $VERSION` -m "`eval $VERSION`"
+    - git push --tags
+  only:
+    - master
+
+
+release:
+  stage: release
+  image: inetprocess/gitlab-release
+  script:
+    - gitlab-release --message 'Release `eval $VERSION' ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
+  only:
+    - master
