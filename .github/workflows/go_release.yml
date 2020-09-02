@@ -1,40 +1,10 @@
-name: Go
+name: go_build
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  release:
+    types: [created]
 
 jobs:
-
-  create_release:
-    name: Create release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.package-version.outputs.version }}
-    steps:
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
-    - name: Read package.json
-      uses: tyankatsu0105/read-package-version-actions@v1
-      id: package-version
-
-    - name: Show version number
-      run: echo "Version is ${{ steps.package-version.outputs.version }}"
-
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: "v${{ steps.package-version.outputs.version }}"
-        release_name: Release v${{ steps.package-version.outputs.version }}
-
-
   build:
     name: Build
     runs-on: ubuntu-latest
