@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: build_to_release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,7 +16,11 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Build binary
+    - name: Read package.json
+      uses: tyankatsu0105/read-package-version-actions@v1
+      id: package-version
+
+    - name: Build gorkscrew binary
       uses: wangyoucao577/go-release-action@master
       with:
         github_token: ${{ secrets.TOKEN }}
@@ -24,3 +28,13 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "https://dl.google.com/go/go1.14.7.linux-amd64.tar.gz"
         pre_command: go get -v github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
+
+    - name: send gorkscrew binary to gitlab release
+      uses: wei/curl@v1
+      with:
+        args: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"PRIVATE-TOKEN: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\""
+
+    - name: send md5sum file to gitlab release
+      uses: wei/curl@v1
+      with:
+        args: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"PRIVATE-TOKEN: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\""
