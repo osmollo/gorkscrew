@@ -7,14 +7,13 @@ variables:
 
 stages:
   - mr_test
-  - build
-  - tag
+  # - build
   - release
 
 check_version:
   stage: mr_test
   script:
-    - if [ $(git diff --name-only HEAD^ -- package.json | wc -l) -ne 1 ]; then echo "detected new release"; else echo "package.json hasn't changed'"; exit 1; fi
+    - if [ $(git diff --name-only HEAD^ -- package.json | wc -l) -eq 1 ]; then echo "detected new release"; else echo "package.json hasn't changed'"; exit 1; fi
   only:
     - merge_requests
 
@@ -33,30 +32,33 @@ go_test:
     - merge_requests
 
 
-build:
-  stage: build
-  image: golang:1.14
-  before_script:
-    - mkdir -p ${GOPATH}/src/${GO_PROJECT}
-    - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
-    - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
-    - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
-    - cd ${GOPATH}/src/${GO_PROJECT}
-  script:
-    - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME} gorkscrew.go
-  artifacts:
-    expire_in: '1 hour'
-    paths:
-      - ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
-  only:
-    - master
+# build:
+#   stage: build
+#   image: golang:1.14
+#   before_script:
+#     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
+#     - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}/
+#     - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
+#     - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
+#     - cd ${GOPATH}/src/${GO_PROJECT}
+#   script:
+#     - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID} gorkscrew.go
+#     - ls -lhR ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}
+#     - md5sum ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}/gorkscrew > ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}/md5sum.txt
+#     - ls -lhR ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}
+#   artifacts:
+#     expire_in: '1 hour'
+#     paths:
+#       - ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}
+#   only:
+#     - master
 
 
-tag:
-  stage: tag
+release:
+  stage: release
   image: alpine:latest
   script:
-    - apk --update add git jq
+    - apk --update add git jq curl
     - git config user.email "${GITLAB_USER_EMAIL}"
     - git config user.name "${GITLAB_USER_NAME}"
     - git config push.default simple
@@ -67,14 +69,15 @@ tag:
     - git tag -a `eval $VERSION` -m "`eval $VERSION`"
     - git push --tags
     - git push github HEAD:master
+    - "curl --request POST -header 'Content-Type: application/json' --header \"Private-Token: ${GITHUB_TOKEN}\" --data '{\"name\": \"Release `eval $VERSION`\", \"tag_name\": \"`eval $VERSION`\", \"description\": \"\"}' \"https://gitlab.com/api/v4/projects/${CI_PROJECT_NAME}/releases\""
   only:
     - master
 
 
-release:
-  stage: release
-  image: inetprocess/gitlab-release
-  script:
-    - gitlab-release --message 'Release `eval $VERSION`' ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
-  only:
-    - master
+# release:
+#   stage: release
+#   image: inetprocess/gitlab-release
+#   script:
+#     - gitlab-release --message 'Release `eval $VERSION`' ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}/gorkscrew ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/${CI_CONCURRENT_ID}/md5sum.txt
+#   only:
+#     - master
