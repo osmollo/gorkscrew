@@ -5,10 +5,30 @@ variables:
   GO_PROJECT: gitlab.com/${CI_PROJECT_PATH}
 
 stages:
+  - mr_test
   - test
   - build
   - tag
   - release
+
+
+mr_test:
+  stage: mr_test
+  image: golang:1.14
+  before_script:
+    - apt update
+    - apt install -y jq curl
+    - if ! $(git diff-index HEAD^ --quiet -- package.json 2&>1 /dev/null); then echo "releasing $(jq -r .version package.json)"; else echo "package.json hasn't changed'"; exit $(git diff-index master --quiet -- package.json); fi
+    - echo `eval $VERSION`
+    - mkdir -p ${GOPATH}/src/${GO_PROJECT}
+    - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
+    - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
+    - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
+    - cd ${GOPATH}/src/${GO_PROJECT}
+  script:
+    - go test -v -cover gorkscrew.go
+  only:
+    - merge_requests
 
 
 test:
