@@ -5,18 +5,19 @@ variables:
   GO_PROJECT: gitlab.com/${CI_PROJECT_PATH}
 
 stages:
-  - test
+  - mr_test
   - build
   - tag
   - release
 
 
-test:
-  stage: test
+mr_test:
+  stage: mr_test
   image: golang:1.14
   before_script:
     - apt update
     - apt install -y jq curl
+    - if ! $(git diff-index HEAD^ --quiet -- package.json 2&>1 /dev/null); then echo "releasing $(jq -r .version package.json)"; else echo "package.json hasn't changed'"; exit $(git diff-index master --quiet -- package.json); fi
     - echo `eval $VERSION`
     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
     - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
@@ -25,8 +26,8 @@ test:
     - cd ${GOPATH}/src/${GO_PROJECT}
   script:
     - go test -v -cover gorkscrew.go
-  except:
-    - master
+  only:
+    - merge_requests
 
 
 build:
@@ -60,10 +61,12 @@ tag:
     - git config user.name "${GITLAB_USER_NAME}"
     - git config push.default simple
     - git remote set-url origin https://${GITLAB_USER_LOGIN}:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    - if ! $(git remote show github 2&>1 /dev/null); then git remote add github https://${GITLAB_USER_LOGIN}:${GITHUB_TOKEN}@github.com/${GITLAB_USER_LOGIN}/my_workstation.git; fi
     - git remote -v
     - git checkout master
     - git tag -a `eval $VERSION` -m "`eval $VERSION`"
     - git push --tags
+    - git push github HEAD:master
   only:
     - master
 
