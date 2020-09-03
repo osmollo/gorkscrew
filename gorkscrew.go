@@ -52,11 +52,12 @@ func FeelTheMagic(con net.Conn) {
 // Returns the URI for proxy connection for kerberos authenticacion
 func GetURIKerberosAuth(krb5conf *string, spn *string, desthost *string, destport *int) string {
 	var (
-		ccpath       string = GetCredentialsCachePath(*krb5conf)
-		repository   string
-		b64tgs       string
-		parentComand string
-		cl           *client.Client
+		ccpath          string = GetCredentialsCachePath(*krb5conf)
+		repository      string
+		b64tgs          string
+		parentComand    string
+		gitShellCommand string
+		cl              *client.Client
 	)
 
 	if !FileExists(*krb5conf) {
@@ -91,23 +92,24 @@ func GetURIKerberosAuth(krb5conf *string, spn *string, desthost *string, destpor
 	log.Println("Authenticated User:", cl.Credentials.UserName())
 	parentComand = GetParentCommand()
 	log.Print("Parent command:", parentComand)
-	repository = GetRepositoryFromCommand(parentComand)
+	repository, gitShellCommand = GetRepositoryFromCommand(parentComand)
 	log.Print("Repository:", repository)
-
+	log.Print("Git Shell Command: ", gitShellCommand)
 	if repository == "" {
 		log.Println("Error: repository not found")
 		os.Exit(1)
 	}
-	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nProxy-Authorization: Negotiate " + b64tgs + "\nRepository: " + repository + "\r\n\r\n"
+	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nProxy-Authorization: Negotiate " + b64tgs + "\nRepository: " + repository + "\nGitShellCommand: " + gitShellCommand + "\nUserAuth: " + cl.Credentials.UserName() + "\r\n\r\n"
 }
 
 // returns the URI for proxy connections with basic authentication
 func GetURIBasicAuth(credsfilename *string, desthost *string, destport *int) string {
 	var (
-		repository   string
-		proxycreds   string
-		b64creds     string
-		parentComand string
+		repository      string
+		gitShellCommand string
+		proxycreds      string
+		b64creds        string
+		parentComand    string
 	)
 	gvalue, gpresent := os.LookupEnv("GORKSCREW_AUTH")
 	cvalue, cpresent := os.LookupEnv("CORKSCREW_AUTH")
@@ -132,22 +134,25 @@ func GetURIBasicAuth(credsfilename *string, desthost *string, destport *int) str
 	b64creds = b64.StdEncoding.EncodeToString([]byte(proxycreds))
 	parentComand = GetParentCommand()
 	log.Print("Parent command:", parentComand)
-	repository = GetRepositoryFromCommand(parentComand)
+	repository, gitShellCommand = GetRepositoryFromCommand(parentComand)
 	log.Print("Repository:", repository)
-	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nProxy-Authorization: Basic " + b64creds + "\nRepository: " + repository + "\r\n\r\n"
+	log.Print("Git Shell Command: ", gitShellCommand)
+	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nProxy-Authorization: Basic " + b64creds + "\nRepository: " + repository + "\nGitShellCommand: " + gitShellCommand + "\nUserAuth: " + strings.Split(proxycreds, ":")[0] + "\r\n\r\n"
 }
 
 // returns URI for proxy connection when there's no authentication
 func GetURINoAuth(desthost *string, destport *int) string {
 	var (
-		parentComand string
-		repository   string
+		parentComand    string
+		repository      string
+		gitShellCommand string
 	)
 	parentComand = GetParentCommand()
 	log.Print("Parent command:", parentComand)
-	repository = GetRepositoryFromCommand(parentComand)
+	repository, gitShellCommand = GetRepositoryFromCommand(parentComand)
 	log.Print("Repository:", repository)
-	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nRepository: " + repository + "\r\n\r\n"
+	log.Print("Git Shell Command: ", gitShellCommand)
+	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nRepository: " + repository + "\nGitShellCommand: " + gitShellCommand + "\nUserAuth: NULL" + "\r\n\r\n"
 }
 
 // returns the path to kerberos credentials cache if its set in krb5.conf or default value
@@ -189,12 +194,13 @@ func GetParentCommand() string {
 }
 
 // Parse COMMAND and returns in format 'ssh://'
-func GetRepositoryFromCommand(command string) string {
+func GetRepositoryFromCommand(command string) (string, string) {
 	var (
-		destination string
-		port        string = "22"
-		repository  string
-		arg         []string = strings.Split(command, " ")
+		destination     string
+		port            string = "22"
+		repository      string
+		gitShellCommand string
+		arg             []string = strings.Split(command, " ")
 	)
 	/// "usr/bin/ssh git@github.com git-upload-pack 'bitexploder/timmy.git'"
 	// "usr/bin/ssh -p 7999 git@globaldevtools.bbva.com git-receive-pack '/uqnwi/bitbucket_lifecycle.git'"
@@ -213,14 +219,17 @@ func GetRepositoryFromCommand(command string) string {
 		} else if strings.HasPrefix(s, "/") && strings.HasSuffix(s, ".git") {
 			repository = s
 		}
+		if strings.HasPrefix(s, "git-") {
+			gitShellCommand = s
+		}
 	}
 	if !(strings.HasPrefix(repository, "/")) {
 		repository = "/" + repository
 	}
 	if len(destination) > 0 && len(port) > 0 && len(repository) > 0 {
-		return "ssh://" + destination + ":" + port + repository
+		return "ssh://" + destination + ":" + port + repository, gitShellCommand
 	}
-	return ""
+	return "", ""
 }
 
 // check if FILENAME exists and is a file
