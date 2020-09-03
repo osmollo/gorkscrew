@@ -60,10 +60,12 @@ tag:
     - git config user.name "${GITLAB_USER_NAME}"
     - git config push.default simple
     - git remote set-url origin https://${GITLAB_USER_LOGIN}:${GITLAB_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git
+    - if ! $(git remote show github 2&>1 /dev/null); then git remote add github https://${GITLAB_USER_LOGIN}:${GITHUB_TOKEN}@github.com/${GITLAB_USER_LOGIN}/my_workstation.git; fi
     - git remote -v
     - git checkout master
     - git tag -a `eval $VERSION` -m "`eval $VERSION`"
     - git push --tags
+    - git push github HEAD:master
   only:
     - master
 
