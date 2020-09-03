@@ -10,9 +10,6 @@ jobs:
   create_release:
     name: Create release
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.package-version.outputs.version }}
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2

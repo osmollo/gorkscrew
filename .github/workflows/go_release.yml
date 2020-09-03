@@ -8,7 +8,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: create_release
     strategy:
       matrix:
         goos: [linux]
@@ -25,14 +24,3 @@ jobs:
         goarch: ${{ matrix.goarch }}
         goversion: "https://dl.google.com/go/go1.14.7.linux-amd64.tar.gz"
         pre_command: go get -v github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
-
-    - name: Upload binary to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.create_release.outputs.upload_url }}
-        asset_path: ./build/gorkscrew
-        asset_name: gorkscrew
-        extra_files: README.md
-        # asset_content_type: application/zip
