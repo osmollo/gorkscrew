@@ -14,7 +14,7 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Read package.json
+    - name: Read release.json
       uses: tyankatsu0105/read-package-version-actions@v1
       id: package-version
 
