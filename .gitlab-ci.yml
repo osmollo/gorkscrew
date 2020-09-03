@@ -69,9 +69,10 @@ release:
     - git tag -a `eval $VERSION` -m "`eval $VERSION`"
     - git push --tags
     - git push github HEAD:master
-    - "curl --request POST -header 'Content-Type: application/json' --header \"Private-Token: ${GITHUB_TOKEN}\" --data '{\"name\": \"Release `eval $VERSION`\", \"tag_name\": \"`eval $VERSION`\", \"description\": \"\"}' \"https://gitlab.com/api/v4/projects/${CI_PROJECT_NAME}/releases\""
+    - "curl -X POST -header \"Content-Type: application/json\" -H \"Private-Token: ${GITLAB_TOKEN}\" --data '{\"name\": \"Release `eval $VERSION`\", \"tag_name\": \"`eval $VERSION`\", \"description\": \"\"}' \"https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/releases\""
   only:
     - master
+
 
 
 # release:
