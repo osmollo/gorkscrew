@@ -11,15 +11,17 @@ stages:
   - tag
   - release
 
+check_version:
+  stage: mr_test
+  script:
+    - if [ $(git diff --name-only HEAD^ -- package.json | wc -l) -ne 1 ]; then echo "detected new release"; else echo "package.json hasn't changed'"; exit 1; fi
+  only:
+    - merge_requests
 
-mr_test:
+go_test:
   stage: mr_test
   image: golang:1.14
   before_script:
-    - apt update
-    - apt install -y jq curl
-    - if [ $(git diff --name-only master | grep package.json | wc -l) -eq 1 ]; then echo "releasing $(jq -r .version package.json)"; else echo "package.json hasn't changed'"; exit 1; fi
-    - echo `eval $VERSION`
     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
     - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
     - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
@@ -35,9 +37,6 @@ build:
   stage: build
   image: golang:1.14
   before_script:
-    - apt update
-    - apt install -y jq curl
-    - echo `eval $VERSION`
     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
     - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}/`eval $VERSION`/
     - go get -u github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
