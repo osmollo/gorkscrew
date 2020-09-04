@@ -16,7 +16,7 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Read package.json
+    - name: Read release.json
       uses: tyankatsu0105/read-package-version-actions@v1
       id: package-version
 
@@ -30,21 +30,9 @@ jobs:
         pre_command: go get -v github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
 
     - name: send gorkscrew binary to gitlab release
-      uses: enflo/curl-action@master
-      with:
-        curl: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\""
+      run: "curl -X POST https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data '{\"name\": \"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\", \"url\":  \"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\"}'"
+      shell: bash
 
     - name: send md5sum file to gitlab release
-      uses: enflo/curl-action@master
-      with:
-        curl: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\""
-
-    # - name: send gorkscrew binary to gitlab release
-    #   uses: wei/curl@v1
-    #   with:
-    #     args: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz\""
-
-    # - name: send md5sum file to gitlab release
-    #   uses: wei/curl@v1
-    #   with:
-    #     args: "-X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data name=\"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\" --data url=\"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\""
+      run: "curl -X POST \"https://gitlab.com/api/v4/projects/20847273/releases/${{ steps.package-version.outputs.version }}/assets/links\" -H \"Private-Token: ${{ secrets.GITLABTOKEN }}\" --data '{\"name\": \"gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\", \"url\": \"https://github.com/ohermosa/gorkscrew/releases/download/v${{ steps.package-version.outputs.version }}/gorkscrew-v${{ steps.package-version.outputs.version }}-linux-amd64.tar.gz.md5\"}'"
+      shell: bash
