@@ -141,19 +141,6 @@ func GetURIBasicAuth(credsfilename *string, desthost *string, destport *int) str
 }
 
 // returns URI for proxy connection when there's no authentication
-func GetURINoAuth(desthost *string, destport *int) string {
-	var (
-		parentComand    string
-		repository      string
-		gitShellCommand string
-	)
-	parentComand = GetParentCommand()
-	log.Print("Parent command:", parentComand)
-	repository, gitShellCommand = GetRepositoryFromCommand(parentComand)
-	log.Print("Repository:", repository)
-	log.Print("Git Shell Command: ", gitShellCommand)
-	return "CONNECT " + *desthost + ":" + strconv.Itoa(*destport) + " HTTP/1.0\nHost: " + *desthost + ":" + strconv.Itoa(*destport) + "\nRepository: " + repository + "\nGitShellCommand: " + gitShellCommand + "\nUserAuth: NULL" + "\r\n\r\n"
-}
 
 // returns the path to kerberos credentials cache if its set in krb5.conf or default value
 func GetCredentialsCachePath(krb5conf string) string {
