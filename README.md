@@ -1,18 +1,18 @@
 # GORKSCREW
 
 - [GORKSCREW](#gorkscrew)
-  - [Dependencias](#dependencias)
-  - [Argumentos](#argumentos)
-  - [Compilar Gorkscrew](#compilar-gorkscrew)
+  - [Dependencies](#dependencies)
+  - [Arguments](#arguments)
+  - [Build gorkscrew](#build-gorkscrew)
   - [Ejecutar Gorkscrew](#ejecutar-gorkscrew)
   - [Pruebas](#pruebas)
     - [No authentication](#no-authentication)
     - [Basic authentication](#basic-authentication)
     - [Kerberos authentication](#kerberos-authentication)
 
-## Dependencias
+## Dependencies
 
-Para instalar `GO`
+For **GO** installation:
 
 ```bash
 git clone git@github.com:ohermosa/my_workstation.git
@@ -20,7 +20,7 @@ cd my_workstation/ansible
 ansible-playbook install.yml -t go
 ```
 
-Tras clonar el repositorio, hay que definir las siguientes variables de entorno:
+After clone the repository, there will be to define the following environment variables:
 
 ```bash
 mkdir $HOME/go
@@ -29,7 +29,7 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 ```
 
-E instalar los módulos externos de GO:
+And install the following external **GO** modules:
 
 ```bash
 go get github.com/jcmturner/gokrb5/v8/client
@@ -38,27 +38,27 @@ go get github.com/jcmturner/gokrb5/v8/credentials
 go get github.com/jcmturner/gokrb5/v8/spnego
 ```
 
-## Argumentos
+## Arguments
 
-`gorkscrew` puede recibir los siguientes argumentos:
+`gorkscrew` can receive the following arguments:
 
 | NAME | DESCRIPTION | DEFAULT |
 |--|--|--|
-| proxy_host | nombre/ip del proxy | squid |
-| proxy_port | puerto del proxy | 3128 |
-| proxy_timeout | timeout para la conexión con el proxy | 3 |
-| dest_host | host destino | foo_bar.com |
-| dest_port | puerto destino | 22 |
-| krb_auth | activa la autencicación mediante kerberos | false |
-| krb5conf | ruta al fichero krb5.conf | /etc/krb5.conf |
-| krb_spn | Kerberos SPN para la autenticación con el proxy | HTTP/squid-samuel |
-| basic_auth | activa la autenticación mediante credenciales | false |
-| creds_file | ruta al fichero donde se encuentran los credenciales del proxy | /foo/bar |
-| version | muestra la versión de gorkscrew | false |
+| proxy_host | proxy hostname/IP | squid |
+| proxy_port | proxy port | 3128 |
+| proxy_timeout | proxy timeout connection | 3 |
+| dest_host | destination host | foo_bar.com |
+| dest_port | destination port | 22 |
+| krb_auth | enable kerberos authentication | false |
+| krb5conf | path to `krb5.conf` file | /etc/krb5.conf |
+| krb_spn | Kerberos SPN for kerberos authentication with proxy | HTTP/squid-samuel |
+| basic_auth | enable basic authenticacion | false |
+| creds_file | path to file with proxy credentials | /foo/bar |
+| version | show gorkscrew version | false |
 
-## Compilar Gorkscrew
+## Build gorkscrew
 
-Con el siguiente comando se creará el binario `./gorkscrew`
+With this command, the `./gorkscrew` binary will be builded:
 
 ```bash
 go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go

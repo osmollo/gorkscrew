@@ -3,6 +3,7 @@
 ## latest
 
 - CHANGELOG.md
+- README.md traslation from spanish to english
 
 ## 1.0.13
 
