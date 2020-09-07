@@ -12,12 +12,15 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Read package.json
-      uses: tyankatsu0105/read-package-version-actions@v1
-      id: package-version
+    - name: Read release.json
+      uses: notiz-dev/github-action-json-property@release
+      id: package_info
+      with:
+        path: 'release.json'
+        prop_path: 'version'
 
     - name: Show version number
-      run: echo "Version is ${{ steps.package-version.outputs.version }}"
+      run: echo "Version is ${{ steps.package_info.outputs.prop }}"
 
     - name: Create release
       id: create_release
@@ -25,5 +28,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        tag_name: "v${{ steps.package-version.outputs.version }}"
-        release_name: Release v${{ steps.package-version.outputs.version }}
+        tag_name: "v${{ steps.package_info.outputs.prop }}"
+        release_name: Release v${{ steps.package_info.outputs.prop }}

@@ -15,14 +15,23 @@ jobs:
       - id: file_changes
         uses: trilom/file-changes-action@v1.2.3
 
-      - name: check if package.json has been modified
+      - name: check if release.json has been modified
         run: |
-          grep package.json $HOME/files.json
+          grep release.json $HOME/files.json
 
-      - name: Set up Go ${{ secrets.GO_VERSION }}
+      - name: Read release.json
+        uses: notiz-dev/github-action-json-property@release
+        id: package_info
+        with:
+          path: 'release.json'
+          prop_path: 'go_version'
+
+      - run: echo "version is ${{ steps.package_info.outputs.prop }}"
+
+      - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: ${{ secrets.GO_VERSION }}
+          go-version: ${{ steps.package_info.outputs.prop }}
 
       - name: Get dependencies
         run: |
