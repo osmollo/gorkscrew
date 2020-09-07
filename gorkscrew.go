@@ -22,7 +22,10 @@ import (
 
 const bufsize = 4096
 
-var GorkscrewVersion string
+var (
+	GoVersion        string
+	GorkscrewVersion string
+)
 
 type Progress struct {
 	bytes uint64
@@ -278,7 +281,8 @@ func main() {
 	flag.Parse()
 
 	if *version {
-		fmt.Println("gorkscrew version:", GorkscrewVersion)
+		fmt.Println("Gorkscrew version:", GorkscrewVersion)
+		fmt.Println("Compiled with go version:", GoVersion)
 		os.Exit(0)
 	}
 
