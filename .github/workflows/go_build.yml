@@ -16,11 +16,18 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
+    - name: Read release.json
+      uses: notiz-dev/github-action-json-property@release
+      id: package_info
+      with:
+        path: 'release.json'
+        prop_path: 'go_version'
+
     - name: Build gorkscrew binary
       uses: wangyoucao577/go-release-action@master
       with:
         github_token: ${{ secrets.TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        goversion: "https://dl.google.com/go/go${{ secrets.GO_VERSION }}.linux-amd64.tar.gz"
+        goversion: "https://dl.google.com/go/go${{ steps.package_info.outputs.prop }}.linux-amd64.tar.gz"
         pre_command: go get -v github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
