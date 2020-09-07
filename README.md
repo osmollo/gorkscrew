@@ -61,7 +61,7 @@ go get github.com/jcmturner/gokrb5/v8/spnego
 Con el siguiente comando se creará el binario `./gorkscrew`
 
 ```bash
-go build -ldflags "-X main.GorkscrewVersion=$(jq -r .version release.json)" gorkscrew.go
+go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go
 ```
 
 ## Ejecutar Gorkscrew
