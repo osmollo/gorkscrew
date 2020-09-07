@@ -22,6 +22,8 @@ import (
 
 const bufsize = 4096
 
+var GorkscrewVersion string
+
 type Progress struct {
 	bytes uint64
 }
@@ -270,9 +272,15 @@ func main() {
 		krbauth               = flag.Bool("krb_auth", false, "Use Kerberos authentication for proxy users")
 		basicauth             = flag.Bool("basic_auth", false, "Use basic authentication for proxy users")
 		basicauthcredfile     = flag.String("creds_file", "/foo/bar", "Filepath of proxy credentials")
+		version               = flag.Bool("version", false, "Show gorkscrew version")
 	)
 
 	flag.Parse()
+
+	if *version {
+		fmt.Println("gorkscrew version:", GorkscrewVersion)
+		os.Exit(0)
+	}
 
 	logfile := "/tmp/gorkscrew_" + strconv.FormatInt(time.Now().Unix(), 10) + ".log"
 	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY, 0666)

@@ -54,13 +54,14 @@ go get github.com/jcmturner/gokrb5/v8/spnego
 | krb_spn | Kerberos SPN para la autenticación con el proxy | HTTP/squid-samuel |
 | basic_auth | activa la autenticación mediante credenciales | false |
 | creds_file | ruta al fichero donde se encuentran los credenciales del proxy | /foo/bar |
+| version | muestra la versión de gorkscrew | false |
 
 ## Compilar Gorkscrew
 
 Con el siguiente comando se creará el binario `./gorkscrew`
 
 ```bash
-go build gorkscrew.go
+go build -ldflags "-X main.GorkscrewVersion=$(jq -r .version release.json)" gorkscrew.go
 ```
 
 ## Ejecutar Gorkscrew
@@ -90,6 +91,8 @@ Usage of gorkscrew:
         Proxy Timeout Connection (default 3)
   -krb_spn string
         Kerberos Service Principal Name for proxy authentication (default "HTTP/squid-samuel")
+  -version
+        Show gorkscrew version
 ```
 
 En el fichero de configuración de SSH hay que incluir las siguientes líneas:
