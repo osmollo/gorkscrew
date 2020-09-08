@@ -282,7 +282,7 @@ func main() {
 
 	if *version {
 		fmt.Println("Gorkscrew version:", GorkscrewVersion)
-		fmt.Println("Compiled with go version:", GoVersion)
+		fmt.Println("Compiled with GO:", GoVersion)
 		os.Exit(0)
 	}
 
