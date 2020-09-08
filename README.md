@@ -4,8 +4,8 @@
   - [Dependencies](#dependencies)
   - [Arguments](#arguments)
   - [Build gorkscrew](#build-gorkscrew)
-  - [Ejecutar Gorkscrew](#ejecutar-gorkscrew)
-  - [Pruebas](#pruebas)
+  - [Execute Gorkscrew](#execute-gorkscrew)
+  - [Testing](#testing)
     - [No authentication](#no-authentication)
     - [Basic authentication](#basic-authentication)
     - [Kerberos authentication](#kerberos-authentication)
@@ -64,9 +64,9 @@ With this command, the `./gorkscrew` binary will be builded:
 go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go
 ```
 
-## Ejecutar Gorkscrew
+## Execute Gorkscrew
 
-Para ver los argumentos disponibles:
+`Gorkscrew` can receive the following arguments:
 
 ```bash
 ./gorkscrew -h
@@ -95,14 +95,14 @@ Usage of gorkscrew:
         Show gorkscrew version
 ```
 
-En el fichero de configuración de SSH hay que incluir las siguientes líneas:
+This line has to be present in the ssh client configfile:
 
 ```text
 Host foo_bar.com
     ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth
 ```
 
-## Pruebas
+## Testing
 
 ```bash
 cd tests
@@ -116,7 +116,7 @@ docker-compose up -d
 curl  -x 172.23.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -124,7 +124,7 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.23.0.3 --proxy_port 3128 --dest_host %h --dest_port %p
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+We can clone any github repository:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
@@ -138,7 +138,7 @@ docker-compose up -d
 curl -x test:test1234@172.21.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -146,13 +146,13 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.21.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --basic_auth
 ```
 
-Y exportar los credenciales del proxy en la variable `GORKSCREW_AUTH`:
+We must define the environment variable `GORKSCREW_AUTH` with proxy credentials:
 
 ```bash
 export GORKSCREW_AUTH="test:test1234"
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+Finally, we can clone any github repo:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
@@ -160,15 +160,13 @@ git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
 
 ### Kerberos authentication
 
-Como en el resto de escenarios, desplegamos el entorno
-
 ```bash
 cd krb_auth
 chmod 777 squid/keytabs
 docker-compose up -d
 ```
 
-Instalamos el paquete para disponer del cliente de kerberos:
+We must install kerberos client package:
 
 ```bash
 sudo apt install krb5-user
@@ -184,14 +182,14 @@ tee /etc/krb5.conf <<EOF
 EOF
 ```
 
-Probamos el funcionamiento básico del proxy:
+We can check if proxy is working with kerberos authenticacion:
 
 ```bash
 kinit -kt squid/keytabs/client.keytab client
 curl --proxy-negotiate -u : -x 172.22.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -199,7 +197,7 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.22.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth --krb_spn HTTP/squid
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+Finally, we can clone any github repo:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
