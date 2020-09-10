@@ -44,16 +44,18 @@ go get github.com/jcmturner/gokrb5/v8/spnego
 
 | NAME | DESCRIPTION | DEFAULT |
 |--|--|--|
-| proxy_host | proxy hostname/IP | squid |
-| proxy_port | proxy port | 3128 |
-| proxy_timeout | proxy timeout connection | 3 |
-| dest_host | destination host | foo_bar.com |
-| dest_port | destination port | 22 |
-| krb_auth | enable kerberos authentication | false |
-| krb5conf | path to `krb5.conf` file | /etc/krb5.conf |
-| krb_spn | Kerberos SPN for kerberos authentication with proxy | HTTP/squid-samuel |
-| basic_auth | enable basic authenticacion | false |
-| creds_file | path to file with proxy credentials | /foo/bar |
+| proxy_host | proxy hostname/IP | `squid` |
+| proxy_port | proxy port | `3128` |
+| proxy_timeout | proxy timeout connection | `5` |
+| dest_host | destination host | `foo_bar.com` |
+| dest_port | destination port | `22` |
+| krb_auth | enable kerberos authentication | `false` |
+| krb5conf | path to `krb5.conf` file | `/etc/krb5.conf` |
+| krb_spn | Kerberos SPN for kerberos authentication with proxy | `HTTP/squid-samuel` |
+| basic_auth | enable basic authenticacion | `false` |
+| creds_file | path to file with proxy credentials | `/foo/bar` |
+| log | enable logging | `false` |
+| log_file | path to log file | `/tmp/gorkscrew_$TIMESTAMP.log` |
 | version | show gorkscrew version | false |
 
 ## Build gorkscrew
@@ -91,15 +93,21 @@ Usage of gorkscrew:
         Proxy Timeout Connection (default 3)
   -krb_spn string
         Kerberos Service Principal Name for proxy authentication (default "HTTP/squid-samuel")
+  -log
+        enable logging
+  -log_file string
+        Save log execution to file (default "/foo/bar.log")
   -version
         Show gorkscrew version
 ```
 
-This line has to be present in the ssh client configfile:
+According to the type of proxy authentication, we will need to use an argument or another:
 
 ```text
 Host foo_bar.com
-    ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --basic_auth --creds_file /tmp/userpass.txt
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth --krb_spn HTTP/my_squid
 ```
 
 ## Testing
