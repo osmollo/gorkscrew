@@ -1,9 +1,12 @@
 # gorkscrew versions
 
-## latest
+## 1.0.14
 
-- CHANGELOG.md
-- README.md traslation from spanish to english
+- Translate README to english
+- Code licensed under GPL3
+- Licensed under GPL3
+- New argument for enable logging (`--log`). Default: no logging
+- Proxy timeout up to 5 secs
 
 ## 1.0.13
 
