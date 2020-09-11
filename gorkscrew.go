@@ -267,7 +267,7 @@ func main() {
 		setup             int = 0
 		proxyhost             = flag.String("proxy_host", "squid", "Proxy Host")
 		proxyport             = flag.Int("proxy_port", 3128, "Proxy Port")
-		proxytimeout          = flag.Int("proxy_timeout", 3, "Proxy Timeout Connection")
+		proxytimeout          = flag.Int("proxy_timeout", 5, "Proxy Timeout Connection")
 		desthost              = flag.String("dest_host", "foo_bar.com", "Destination Host")
 		destport              = flag.Int("dest_port", 22, "Destination Port")
 		krb5conf              = flag.String("krb5conf", "/etc/krb5.conf", "Path to Kerberos Config")
