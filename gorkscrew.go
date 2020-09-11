@@ -267,7 +267,7 @@ func main() {
 		setup             int = 0
 		proxyhost             = flag.String("proxy_host", "squid", "Proxy Host")
 		proxyport             = flag.Int("proxy_port", 3128, "Proxy Port")
-		proxytimeout          = flag.Int("proxy_timeout", 3, "Proxy Timeout Connection")
+		proxytimeout          = flag.Int("proxy_timeout", 5, "Proxy Timeout Connection")
 		desthost              = flag.String("dest_host", "foo_bar.com", "Destination Host")
 		destport              = flag.Int("dest_port", 22, "Destination Port")
 		krb5conf              = flag.String("krb5conf", "/etc/krb5.conf", "Path to Kerberos Config")
@@ -275,6 +275,8 @@ func main() {
 		krbauth               = flag.Bool("krb_auth", false, "Use Kerberos authentication for proxy users")
 		basicauth             = flag.Bool("basic_auth", false, "Use basic authentication for proxy users")
 		basicauthcredfile     = flag.String("creds_file", "/foo/bar", "Filepath of proxy credentials")
+		logenable             = flag.Bool("log", false, "enable logging")
+		logfile               = flag.String("log_file", "/foo/bar.log", "Save log execution to file")
 		version               = flag.Bool("version", false, "Show gorkscrew version")
 	)
 
@@ -282,16 +284,28 @@ func main() {
 
 	if *version {
 		fmt.Println("Gorkscrew version:", GorkscrewVersion)
-		fmt.Println("Compiled with go version:", GoVersion)
+		fmt.Println("Compiled with GO:", GoVersion)
 		os.Exit(0)
 	}
 
-	logfile := "/tmp/gorkscrew_" + strconv.FormatInt(time.Now().Unix(), 10) + ".log"
-	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatal(err.Error())
+	if *logenable {
+		var (
+			file *os.File
+			err  error
+		)
+
+		if *logfile == "/foo/bar.log" {
+			file, err = os.OpenFile("/tmp/gorkscrew_"+strconv.FormatInt(time.Now().Unix(), 10)+".log", os.O_CREATE|os.O_WRONLY, 0666)
+		} else {
+			file, err = os.OpenFile(*logfile, os.O_CREATE|os.O_WRONLY, 0666)
+		}
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		log.SetOutput(file)
+	} else {
+		log.SetOutput(ioutil.Discard)
 	}
-	log.SetOutput(file)
 
 	log.Println("Proxy Host:", *proxyhost)
 	log.Println("Proxy Port:", *proxyport)

@@ -1,18 +1,18 @@
 # GORKSCREW
 
 - [GORKSCREW](#gorkscrew)
-  - [Dependencias](#dependencias)
-  - [Argumentos](#argumentos)
-  - [Compilar Gorkscrew](#compilar-gorkscrew)
-  - [Ejecutar Gorkscrew](#ejecutar-gorkscrew)
-  - [Pruebas](#pruebas)
+  - [Dependencies](#dependencies)
+  - [Arguments](#arguments)
+  - [Build gorkscrew](#build-gorkscrew)
+  - [Execute Gorkscrew](#execute-gorkscrew)
+  - [Testing](#testing)
     - [No authentication](#no-authentication)
     - [Basic authentication](#basic-authentication)
     - [Kerberos authentication](#kerberos-authentication)
 
-## Dependencias
+## Dependencies
 
-Para instalar `GO`
+For **GO** installation:
 
 ```bash
 git clone git@github.com:ohermosa/my_workstation.git
@@ -20,7 +20,7 @@ cd my_workstation/ansible
 ansible-playbook install.yml -t go
 ```
 
-Tras clonar el repositorio, hay que definir las siguientes variables de entorno:
+After clone the repository, there will be to define the following environment variables:
 
 ```bash
 mkdir $HOME/go
@@ -29,7 +29,7 @@ export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 ```
 
-E instalar los módulos externos de GO:
+And install the following external **GO** modules:
 
 ```bash
 go get github.com/jcmturner/gokrb5/v8/client
@@ -38,35 +38,37 @@ go get github.com/jcmturner/gokrb5/v8/credentials
 go get github.com/jcmturner/gokrb5/v8/spnego
 ```
 
-## Argumentos
+## Arguments
 
-`gorkscrew` puede recibir los siguientes argumentos:
+`gorkscrew` can receive the following arguments:
 
 | NAME | DESCRIPTION | DEFAULT |
 |--|--|--|
-| proxy_host | nombre/ip del proxy | squid |
-| proxy_port | puerto del proxy | 3128 |
-| proxy_timeout | timeout para la conexión con el proxy | 3 |
-| dest_host | host destino | foo_bar.com |
-| dest_port | puerto destino | 22 |
-| krb_auth | activa la autencicación mediante kerberos | false |
-| krb5conf | ruta al fichero krb5.conf | /etc/krb5.conf |
-| krb_spn | Kerberos SPN para la autenticación con el proxy | HTTP/squid-samuel |
-| basic_auth | activa la autenticación mediante credenciales | false |
-| creds_file | ruta al fichero donde se encuentran los credenciales del proxy | /foo/bar |
-| version | muestra la versión de gorkscrew | false |
+| proxy_host | proxy hostname/IP | `squid` |
+| proxy_port | proxy port | `3128` |
+| proxy_timeout | proxy timeout connection | `5` |
+| dest_host | destination host | `foo_bar.com` |
+| dest_port | destination port | `22` |
+| krb_auth | enable kerberos authentication | `false` |
+| krb5conf | path to `krb5.conf` file | `/etc/krb5.conf` |
+| krb_spn | Kerberos SPN for kerberos authentication with proxy | `HTTP/squid-samuel` |
+| basic_auth | enable basic authenticacion | `false` |
+| creds_file | path to file with proxy credentials | `/foo/bar` |
+| log | enable logging | `false` |
+| log_file | path to log file | `/tmp/gorkscrew_$TIMESTAMP.log` |
+| version | show gorkscrew version | false |
 
-## Compilar Gorkscrew
+## Build gorkscrew
 
-Con el siguiente comando se creará el binario `./gorkscrew`
+With this command, the `./gorkscrew` binary will be builded:
 
 ```bash
 go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go
 ```
 
-## Ejecutar Gorkscrew
+## Execute Gorkscrew
 
-Para ver los argumentos disponibles:
+`Gorkscrew` can receive the following arguments:
 
 ```bash
 ./gorkscrew -h
@@ -91,18 +93,24 @@ Usage of gorkscrew:
         Proxy Timeout Connection (default 3)
   -krb_spn string
         Kerberos Service Principal Name for proxy authentication (default "HTTP/squid-samuel")
+  -log
+        enable logging
+  -log_file string
+        Save log execution to file (default "/foo/bar.log")
   -version
         Show gorkscrew version
 ```
 
-En el fichero de configuración de SSH hay que incluir las siguientes líneas:
+According to the type of proxy authentication, we will need to use an argument or another:
 
 ```text
 Host foo_bar.com
-    ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --basic_auth --creds_file /tmp/userpass.txt
+  ProxyCommand /usr/local/bin/gorkscrew --proxy_host squid.internal.domain --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth --krb_spn HTTP/my_squid
 ```
 
-## Pruebas
+## Testing
 
 ```bash
 cd tests
@@ -116,7 +124,7 @@ docker-compose up -d
 curl  -x 172.23.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -124,7 +132,7 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.23.0.3 --proxy_port 3128 --dest_host %h --dest_port %p
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+We can clone any github repository:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
@@ -138,7 +146,7 @@ docker-compose up -d
 curl -x test:test1234@172.21.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -146,13 +154,13 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.21.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --basic_auth
 ```
 
-Y exportar los credenciales del proxy en la variable `GORKSCREW_AUTH`:
+We must define the environment variable `GORKSCREW_AUTH` with proxy credentials:
 
 ```bash
 export GORKSCREW_AUTH="test:test1234"
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+Finally, we can clone any github repo:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
@@ -160,15 +168,13 @@ git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
 
 ### Kerberos authentication
 
-Como en el resto de escenarios, desplegamos el entorno
-
 ```bash
 cd krb_auth
 chmod 777 squid/keytabs
 docker-compose up -d
 ```
 
-Instalamos el paquete para disponer del cliente de kerberos:
+We must install kerberos client package:
 
 ```bash
 sudo apt install krb5-user
@@ -184,14 +190,14 @@ tee /etc/krb5.conf <<EOF
 EOF
 ```
 
-Probamos el funcionamiento básico del proxy:
+We can check if proxy is working with kerberos authenticacion:
 
 ```bash
 kinit -kt squid/keytabs/client.keytab client
 curl --proxy-negotiate -u : -x 172.22.0.3:3128 https://www.google.com -vvv
 ```
 
-Para probar `gorkscrew` incluimos la siguiente sección en el fichero `~/.ssh/config`:
+This section must be present in `~/.ssh/config`:
 
 ```text
 Host github.com
@@ -199,7 +205,7 @@ Host github.com
   ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.22.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth --krb_spn HTTP/squid
 ```
 
-Y para terminar, probamos a clonar el repositorio:
+Finally, we can clone any github repo:
 
 ```bash
 git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
