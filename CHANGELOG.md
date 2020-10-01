@@ -1,5 +1,9 @@
 # gorkscrew versions
 
+## 1.0.15
+
+- New workflow in CI for detect vulnerabilities and coding errors
+
 ## 1.0.14
 
 - Translate README to english
