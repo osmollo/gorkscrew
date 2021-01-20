@@ -22,6 +22,10 @@ jobs:
     - name: Show version number
       run: echo "Version is ${{ steps.package_info.outputs.prop }}"
 
+    - name: Changelog
+      uses: scottbrenner/generate-changelog-action@master
+      id: Changelog
+
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -30,3 +34,7 @@ jobs:
       with:
         tag_name: "v${{ steps.package_info.outputs.prop }}"
         release_name: Release v${{ steps.package_info.outputs.prop }}
+        body: |
+          ${{ steps.Changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
