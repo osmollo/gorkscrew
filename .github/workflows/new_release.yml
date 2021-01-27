@@ -22,6 +22,14 @@ jobs:
     - name: Show version number
       run: echo "Version is ${{ steps.package_info.outputs.prop }}"
 
+    - name: "Build Changelog"
+      id: build_changelog
+      uses: mikepenz/release-changelog-builder-action@{latest-release}
+      with:
+        configuration: "build_changelog_config.json"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
@@ -30,3 +38,4 @@ jobs:
       with:
         tag_name: "v${{ steps.package_info.outputs.prop }}"
         release_name: Release v${{ steps.package_info.outputs.prop }}
+        body: ${{ steps.build_changelog.outputs.changelog }}
