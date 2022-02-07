@@ -15,7 +15,7 @@
 For **GO** installation:
 
 ```bash
-git clone git@github.com:ohermosa/my_workstation.git
+git clone git@github.com:osmollo/my_workstation.git
 cd my_workstation/ansible
 ansible-playbook install.yml -t go
 ```
@@ -135,7 +135,7 @@ Host github.com
 We can clone any github repository:
 
 ```bash
-git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
+git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
 ```
 
 ### Basic authentication
@@ -163,7 +163,7 @@ export GORKSCREW_AUTH="test:test1234"
 Finally, we can clone any github repo:
 
 ```bash
-git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
+git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
 ```
 
 ### Kerberos authentication
@@ -208,5 +208,5 @@ Host github.com
 Finally, we can clone any github repo:
 
 ```bash
-git clone git@github.com:ohermosa/gorkscrew.git /tmp/gorkscrew
+git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
 ```
