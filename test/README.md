@@ -1,11 +1,22 @@
 # TEST
 
 - [TEST](#test)
-  - [No authentication](#no-authentication)
-  - [Basic authentication](#basic-authentication)
-  - [Kerberos authentication](#kerberos-authentication)
+  - [Install docker-compose](#install-docker-compose)
+  - [GORSKCREW tests](#gorskcrew-tests)
+    - [No authentication](#no-authentication)
+    - [Basic authentication](#basic-authentication)
+    - [Kerberos authentication](#kerberos-authentication)
 
-## No authentication
+## Install docker-compose
+
+```shell
+curl -SL https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+## GORSKCREW tests
+
+### No authentication
 
 ```shell
 cd no_auth
@@ -27,7 +38,7 @@ We can clone any github repository:
 git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
 ```
 
-## Basic authentication
+### Basic authentication
 
 ```shell
 cd basic_auth
@@ -55,7 +66,7 @@ Finally, we can clone any github repo:
 git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
 ```
 
-## Kerberos authentication
+### Kerberos authentication
 
 ```shell
 cd krb_auth
