@@ -12,15 +12,17 @@
 
 ## GO version
 
-![Go version](https://img.shields.io/badge/Go-1.18-brightgreen.svg)
+![Go version](https://img.shields.io/badge/Go-1.18.8-brightgreen.svg)
 
 ## Build the binary
+
 ### Dependencies
 
 For **GO** installation, download the desired version from [official download page](https://go.dev/dl/):
 
 ```shell
-tar xvzf go1.18.6.linux-amd64.tar.gz
+sudo rm -fr /usr/local/go
+tar xvzf go1.18.8.linux-amd64.tar.gz
 sudo mv go /usr/local
 
 mkdir $HOME/go
@@ -38,6 +40,7 @@ go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 
 ```
 
 ## How to use
+
 ### Execute Gorkscrew
 
 `gorkscrew` can receive the following arguments:

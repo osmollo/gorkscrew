@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:buster
 
 EXPOSE 749 88
 
