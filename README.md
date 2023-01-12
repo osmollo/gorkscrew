@@ -1,44 +1,47 @@
 # GORKSCREW
 
 - [GORKSCREW](#gorkscrew)
-  - [Dependencies](#dependencies)
-  - [Arguments](#arguments)
-  - [Build gorkscrew](#build-gorkscrew)
-  - [Execute Gorkscrew](#execute-gorkscrew)
+  - [GO version](#go-version)
+  - [Build the binary](#build-the-binary)
+    - [Dependencies](#dependencies)
+    - [Build gorkscrew](#build-gorkscrew)
+  - [How to use](#how-to-use)
+    - [Execute Gorkscrew](#execute-gorkscrew)
   - [Testing](#testing)
-    - [No authentication](#no-authentication)
-    - [Basic authentication](#basic-authentication)
-    - [Kerberos authentication](#kerberos-authentication)
+  - [Buy me a coffee](#buy-me-a-coffee)
 
-## Dependencies
+## GO version
 
-For **GO** installation:
+![Go version](https://img.shields.io/badge/Go-1.18.8-brightgreen.svg)
 
-```bash
-git clone git@github.com:osmollo/my_workstation.git
-cd my_workstation/ansible
-ansible-playbook install.yml -t go
-```
+## Build the binary
 
-After clone the repository, there will be to define the following environment variables:
+### Dependencies
 
-```bash
+For **GO** installation, download the desired version from [official download page](https://go.dev/dl/):
+
+```shell
+sudo rm -fr /usr/local/go
+tar xvzf go1.18.8.linux-amd64.tar.gz
+sudo mv go /usr/local
+
 mkdir $HOME/go
 
 export GOROOT=/usr/local/go
 export GOPATH=$HOME/go
 ```
 
-And install the following external **GO** modules:
+### Build gorkscrew
 
-```bash
-go get github.com/jcmturner/gokrb5/v8/client
-go get github.com/jcmturner/gokrb5/v8/config
-go get github.com/jcmturner/gokrb5/v8/credentials
-go get github.com/jcmturner/gokrb5/v8/spnego
+With this command, the `./gorkscrew` binary will be builded:
+
+```shell
+go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go
 ```
 
-## Arguments
+## How to use
+
+### Execute Gorkscrew
 
 `gorkscrew` can receive the following arguments:
 
@@ -58,19 +61,9 @@ go get github.com/jcmturner/gokrb5/v8/spnego
 | log_file | path to log file | `/tmp/gorkscrew_$TIMESTAMP.log` |
 | version | show gorkscrew version | false |
 
-## Build gorkscrew
+You can see the usage help using the `-h` argument:
 
-With this command, the `./gorkscrew` binary will be builded:
-
-```bash
-go build -ldflags "-X 'main.GorkscrewVersion=$(jq -r .version release.json)' -X 'main.GoVersion=$(jq -r .go_version release.json)'" gorkscrew.go
-```
-
-## Execute Gorkscrew
-
-`Gorkscrew` can receive the following arguments:
-
-```bash
+```shell
 ./gorkscrew -h
 Usage of gorkscrew:
   -basic_auth
@@ -112,101 +105,10 @@ Host foo_bar.com
 
 ## Testing
 
-```bash
-cd tests
-```
+Please, read the [TESTING README](test/README.md)
 
-### No authentication
+## Buy me a coffee
 
-```bash
-cd no_auth
-docker-compose up -d
-curl  -x 172.23.0.3:3128 https://www.google.com -vvv
-```
+If this repository has been helpful to you, but especially if you feel like it, you can invite me to a coffee
 
-This section must be present in `~/.ssh/config`:
-
-```text
-Host github.com
-  LogLevel DEBUG3
-  ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.23.0.3 --proxy_port 3128 --dest_host %h --dest_port %p
-```
-
-We can clone any github repository:
-
-```bash
-git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
-```
-
-### Basic authentication
-
-```bash
-cd basic_auth
-docker-compose up -d
-curl -x test:test1234@172.21.0.3:3128 https://www.google.com -vvv
-```
-
-This section must be present in `~/.ssh/config`:
-
-```text
-Host github.com
-  LogLevel DEBUG3
-  ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.21.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --basic_auth
-```
-
-We must define the environment variable `GORKSCREW_AUTH` with proxy credentials:
-
-```bash
-export GORKSCREW_AUTH="test:test1234"
-```
-
-Finally, we can clone any github repo:
-
-```bash
-git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
-```
-
-### Kerberos authentication
-
-```bash
-cd krb_auth
-chmod 777 squid/keytabs
-docker-compose up -d
-```
-
-We must install kerberos client package:
-
-```bash
-sudo apt install krb5-user
-
-tee /etc/krb5.conf <<EOF
-[libdefaults]
-  default_realm = EXAMPLE.COM
-[realms]
-  EXAMPLE.COM = {
-    kdc = 172.22.0.2
-    admin_server = 172.22.0.2
-  }
-EOF
-```
-
-We can check if proxy is working with kerberos authenticacion:
-
-```bash
-kinit -kt squid/keytabs/client.keytab client
-curl --proxy-negotiate -u : -x 172.22.0.3:3128 https://www.google.com -vvv
-```
-
-This section must be present in `~/.ssh/config`:
-
-```text
-Host github.com
-  LogLevel DEBUG3
-  ProxyCommand /usr/local/bin/gorkscrew --proxy_host 172.22.0.3 --proxy_port 3128 --dest_host %h --dest_port %p --krb_auth --krb_spn HTTP/squid
-```
-
-Finally, we can clone any github repo:
-
-```bash
-git clone git@github.com:osmollo/gorkscrew.git /tmp/gorkscrew
-```
+[![buy me a coffee](https://camo.githubusercontent.com/c3f856bacd5b09669157ed4774f80fb9d8622dd45ce8fdf2990d3552db99bd27/68747470733a2f2f7777772e6275796d6561636f666665652e636f6d2f6173736574732f696d672f637573746f6d5f696d616765732f6f72616e67655f696d672e706e67)](https://www.buymeacoffee.com/osmollo)

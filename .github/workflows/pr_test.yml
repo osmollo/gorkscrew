@@ -33,9 +33,5 @@ jobs:
         with:
           go-version: ${{ steps.package_info.outputs.prop }}
 
-      - name: Get dependencies
-        run: |
-          go get -v github.com/jcmturner/gokrb5/v8/config github.com/jcmturner/gokrb5/v8/client github.com/jcmturner/gokrb5/v8/credentials github.com/jcmturner/gokrb5/v8/spnego
-
       - name: Run go test
         run: go test -v gorkscrew.go

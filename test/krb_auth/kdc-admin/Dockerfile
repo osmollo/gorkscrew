@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:bullseye-slim
 
 EXPOSE 749 88
 

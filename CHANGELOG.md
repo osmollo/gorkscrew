@@ -1,5 +1,11 @@
 # gorkscrew versions
 
+## 1.0.16
+
+- Improve dependencies installation
+- Improve documentation
+- Compiled with [GO 1.18.6](https://go.dev/dl)
+
 ## 1.0.15
 
 - New workflow in CI for detect vulnerabilities and coding errors
