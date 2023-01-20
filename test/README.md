@@ -1,5 +1,7 @@
 # TEST
 
+:construction_worker: **WORKING IN PROGRESS**: docker images used in tests are obsolete and it doesn't work
+
 - [TEST](#test)
   - [Install docker-compose](#install-docker-compose)
   - [GORSKCREW tests](#gorskcrew-tests)

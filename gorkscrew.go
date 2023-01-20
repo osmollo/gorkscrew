@@ -325,11 +325,10 @@ func main() {
 	if *krbauth {
 		log.Println("Kerberos Config:", *krb5conf)
 		log.Println("Kerberos SPN:", *krbspn)
-	}
-
-	if !FileExists(*krb5conf) {
-		log.Printf("kerberos configfile '%s' not exists", *krb5conf)
-		os.Exit(10)
+		if !FileExists(*krb5conf) {
+			log.Printf("kerberos configfile '%s' not exists", *krb5conf)
+			os.Exit(10)
+		}
 	}
 
 	if *krbauth {
