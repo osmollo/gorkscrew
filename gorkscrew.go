@@ -356,7 +356,7 @@ func main() {
 			statusStr := strings.Split(string(buffer[:]), " ")[1]
 			statusCode, _ := strconv.Atoi(statusStr)
 			if statusCode >= 200 && statusCode < 300 {
-				log.Printf("Connection stablished. STATUS CODE: %d\n", statusCode)
+				log.Printf("Connection established. STATUS CODE: %d\n", statusCode)
 				setup = 1
 			} else if statusCode >= 407 {
 				log.Printf("Proxy could not open connection. STATUS CODE: %d\n", statusCode)
